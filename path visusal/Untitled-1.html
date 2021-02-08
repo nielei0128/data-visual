@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="http://api.map.baidu.com/api?v=2.0&ak=XlQ9m3CqMs1UKUbuPIN15LsDp7VC6hoM"></script>
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.3.0-rc.2/echarts-en.min.js"></script>
+<script src="https://www.makeapie.com/dep/echarts/latest/extension/bmap.min.js"></script>
+</head>
+<body>
+ <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width: 95%; height:2500px;"></div>
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+        var hightpx = "height:" + ((window.screen.availHeight) - 100) + "px";//窗口根据显示器的大小调整
+        $("#main").attr("style", hightpx)
+        var color = ['#a6c84c', '#ffa022', '#46bee9'];
+        var last_point = [0, 0];
+			var t_pos = {
+				    left: 0,
+				    top: 0
+				}
+        var startPoint = {  //页面初始化坐标点
+        	    x: 114.254722,
+        	    y: 30.550605
+        	};
+        	// 地图自定义样式
+        	var bmap = {
+        	    center: [startPoint.x, startPoint.y],
+        	    zoom: 15,
+        	    roam: true,
+        	    mapStyle: {
+    	            styleJson: [{
+    	                "featureType": "all",
+    	                "elementType": "all",
+    	                "stylers": {
+    	                    "lightness": 47,
+    	                    "saturation": -100
+    	                }
+    	            }, {
+    	                "featureType": "highway",
+    	                "elementType": "geometry.fill",
+    	                "stylers": {
+    	                    "color": "#ffffff"
+    	                }
+    	            }, {
+    	                "featureType": "poi",
+    	                "elementType": "labels.icon",
+    	                "stylers": {
+    	                    "visibility": "off"
+    	                }
+    	            }, {
+    	                "featureType": "road",
+    	                "elementType": "labels",
+    	                "stylers": {
+    	                    "visibility": "off"
+    	                }
+    	            }]
+    	        }
+        	}
+ 
+        	var addr = [
+			[{ name: '琴台大剧院' }, {  jd:114.2592716217 , wd: 30.5616327403 }], 
+			[{ name: '钟家村' }, {  jd:114.26728 , wd: 30.549565 }],
+			[{ name: '汉阳区江堤街江堤社区北方向' }, {  jd:114.2530059814 , wd: 30.5378686275 }], 
+			[{ name: '汉阳大道钟家村公交站' }, {  jd:114.254722 , wd: 30.550605 }]
+				 
+        	];
+ 
+         
+			
+			
+			
+			var series2 = [];
+        	addr.forEach(function(item, i) {
+        	    series2.push({
+        	        name:  addr[i][0].name ,
+        	        type: 'effectScatter',   // 坐标点数据
+        	        coordinateSystem: 'bmap',
+        	        zlevel: 2,
+        	        rippleEffect: {
+        	            brushType: 'stroke'
+        	        },
+        	        label: {
+        	            normal: {
+        	                show: true,
+        	                position: 'right',
+        	                formatter: '{b}'
+        	            }
+					},
+					animationDelay: function (idx) {
+            return idx * 10;
+        },
+        	        symbolSize:  20,
+        	        showEffectOn: 'render',
+        	        itemStyle: {
+        	            normal: {
+        	                color: '#2EC7C9'
+        	            }
+        	        },
+        	        data: [{
+        	            name: addr[i][0].name,
+						value: [addr[i][1].jd, addr[i][1].wd]  
+        	        }]
+				}  
+				);
+        	});
+			
+			
+			
+			addr.forEach(function(item, i) {
+				if(i<addr.length-1){
+					var endNum=i+1;
+					series2.push({
+					   type: 'lines',  
+						coordinateSystem: 'bmap',  // 线连接，  只需要坐标，为 起点和终点  
+						zlevel: 2,  
+						effect: {  
+							show: true,  
+							period: 6,  
+							trailLength: 0,  
+							symbol:'circle',
+							symbolSize: 10  
+						},  
+						lineStyle: {  
+							normal: {  
+								color: '#5AB1EF',  
+								width: 1,  
+								opacity: 0.4,  
+								curveness: 0   
+							}  
+						},  
+						data: [{  coords: [ [addr[i][1].jd,addr[i][1].wd],[addr[endNum][1].jd,addr[endNum][1].wd]]}]  
+					});
+				}
+        	});
+			
+			 
+			
+			
+			addr.forEach(function(item, i) {
+				if(i<addr.length-1){
+					var endNum=i+1;         //点移动的拖尾特效
+					series2.push({ 
+							type: 'lines',
+							coordinateSystem: 'bmap',
+							zlevel: 1,
+							effect: {
+								show: true,
+								period: 6,
+								trailLength: 0.7,
+								color: '#5AB1EF',
+								symbolSize: 3
+							},
+							lineStyle: {
+								normal: {
+									color: color[i],
+									width: 0,
+									curveness: 0.0
+								}
+							},
+							data: [{  coords: [ [addr[i][1].jd,addr[i][1].wd],[addr[endNum][1].jd,addr[endNum][1].wd]]}]  
+					});
+				}
+        	});
+			
+			
+			
+			
+			
+			
+			
+			
+ 
+        	var color = ['#a6c84c', '#ffa022', '#46bee9'];
+        	 
+        	option = {
+        	    bmap: bmap,
+				zoom: 13,
+        	    color: ['gold', 'aqua', 'lime'],
+        	    backgroundColor: '#404a59',
+        	    title: {    //标题等等信息
+        	        text: '模拟迁徙+百度地图',
+        	        subtext: 'data-visual.cn',
+        	        sublink:'http://data-visual.cn',
+        	        left: 'center',
+        	        textStyle: {
+        	            color: '#fff'
+        	        }
+        	    },
+       	    tooltip: {
+        	    	 trigger: 'item',
+         	        transitionDuration: 0,
+         	        position: function(point, params, dom, rect, size) {
+         	            var least_area = 20;
+         	            var offset_x = 30;  // 相对于point的偏移  
+         	            var offset_y = 30;
+ 
+         	            // last_point的least_area范围内不会产生新的t_pos  
+         	            if (Math.abs(point[0] - last_point[0]) < least_area &&
+         	                Math.abs(point[1] - last_point[1]) < least_area &&
+         	                counter >= 2) {
+         	                return t_pos;
+         	            }
+         	            if (Math.abs(point[0] - last_point[0]) >= least_area ||
+         	                Math.abs(point[1] - last_point[1]) >= least_area) {
+         	                counter = 0;
+         	            }
+         	            counter += 1;
+         	           // 使real_x,real_y有数值  
+         	            if (counter == 1) {
+         	                t_pos.left = point[0] + offset_x;
+         	                t_pos.top = point[1] + offset_y;
+         	                last_point = [point[0], point[1]];
+         	            }
+         	            // 此处进行修正tooltip的位置  
+         	            if (counter == 2) { 
+         	                var real_x = $(dom).position().left;
+         	                var real_y = $(dom).position().top;
+         	                t_pos.left += point[0] - real_x + offset_x;
+         	                t_pos.top += point[1] - real_y + offset_y;
+         	            }
+         	       //     alert(t_pos.left + ' : ' +t_pos.top)
+         	            return t_pos;
+         	        } 
+        	    },    
+        	    legend: {   //工具栏，可以进行 类型数据显示的选择
+        	        orient: 'vertical',
+        	        top: 'bottom',
+        	        left: 'right',
+        	        
+        	        textStyle: {
+        	            color: '#fff'
+        	        },
+        	        selectedMode: 'single'
+				}, 
+				markine:{
+                animationDurationUpdate: function (idx) {
+    // 越往后的数据时长越大
+    return idx * 100;
+}
+            },
+        	    series:    series2
+				
+				 
+            };  
+        	 
+ 
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    </script>
+         
+         
+</body>
+</html>
