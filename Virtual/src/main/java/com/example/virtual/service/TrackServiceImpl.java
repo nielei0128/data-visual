@@ -17,4 +17,9 @@ public class TrackServiceImpl extends TrackService {
     public List<Track> test(){
         return trackDAORepository.findAll();
     }
+
+    public List<Track> selectFirstFloor(){
+        return trackDAORepository.findByFloor("1");
+
+    }
 }

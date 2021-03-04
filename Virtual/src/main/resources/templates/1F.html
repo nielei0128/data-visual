@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="jquery-3.5.1.js"></script>
+    <script src="https://unpkg.com/@antv/data-set"></script>
+    <script src="echarts.js"></script>
+    <title>自定义地图底图</title>
+</head>
+
+<body>
+<div id="mall_map" class="mall_map"></div>
+</body>
+
+</html>
+<script type="text/javascript">
+    var testa=3;
+    $.getJSON('http://testcdn.zhimatech.com/map.json', function (value) {
+            var floor = ["1F", "2F", "3F"]
+            let map = {}
+            var datat=[]
+            map = value
+            var add;
+            var ds = new DataSet();
+            let shop_center_point_arr = {}
+            var worldMap = ds.createView().source(map, {
+                type: 'GeoJSON'
+            }).transform({
+                type: 'map',
+                callback: function callback(row) {
+                    let t_key = row.name
+                    let obj = {};
+                    shop_center_point_arr[t_key] = [row.centroidX, row.centroidY];
+                    shop_area_[t_key]=[row._x,row._y];
+                    return row;
+                }
+            })
+        $.ajax(
+            {
+                type:"get",
+                url:"1F",
+                contentType:"application/json",
+                success:function (res){
+                    console.log("====res:====")
+                    console.log(res);
+                    for(var i=0;i<res.length;i++){
+                        add.push(shop_center_point_arr[res[i].address]);
+                    }
+                },
+                error: function(res) {
+                    alert("Ajax获取服务器数据出错了！"+ res);
+                }
+            }
+        )
+
+
+            echarts.dispose(document.getElementById("mall_map"));
+            var myChart = echarts.init(document.getElementById("mall_map"));
+            echarts.registerMap('mallMap', map);
+            var linkArr = [
+                {
+                    coords:datat,
+                    lineStyle: {
+                        type: 'dashed',
+                        width: 2,
+                        curveness: 0.3,
+                        color: "white"
+                    }
+                },
+            ]
+            var linkArr2 = [
+                {
+                    coords: [shop_center_point_arr['星巴克'], shop_center_point_arr['万达影城']],
+                    lineStyle: {
+                        type: 'dashed',
+                        width: 2,
+                        curveness: 0.3,
+                        color: "white"
+                    }
+                },
+            ]
+
+            var option = {
+                title: {
+                    show: false
+                },
+
+                tooltip: {
+                    trigger: 'item',
+
+                },
+                geo: {
+                    map: 'mallMap',
+                    roam: true,
+                    zlevel: -1,
+                    label: {
+                        normal: {
+                            show: true,
+                            color: '#ffffff',
+                        },
+                        emphasis: {
+                            color: '#ffffff',
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            shadowColor: 'rgba(1, 125, 255, 0.5)',
+                            shadowBlur: 1,
+                            areaColor: '#092449',
+                            color: '#017DFF',
+                            borderColor: '#017DFF',
+                            borderWidth: 2
+                        },
+                        emphasis: {
+                            shadowColor: 'rgba(1, 125, 255, 0.5)',
+                            shadowBlur: 1,
+                            areaColor: '#092449',
+                            color: '#017DFF',
+                            borderColor: '#017DFF',
+                            borderWidth: 2
+                        },
+                        textFixed: {
+                            Alaska: [20, -20]
+                        },
+                    },
+                    regions: []
+                },
+                series: [
+                    {
+                        name: "customer1",
+                        type: 'lines',
+                        coordinateSystem: 'geo',
+                        zlevel: 3,
+                        polyline: true,
+
+                        symbol: ['none',
+                            'arrow'
+                        ],
+                        //线特效配置
+                        effect: {
+                            show: true,
+                            period: testa,
+                            trailLength: 0.1,
+                            // symbol: 'circle', //标记类型
+                            symbol: 'pin',
+                            loop: false,
+                            symbolSize: 15
+                        },
+                        data: linkArr
+                    },
+                    {
+                        name: "customer2",
+
+                        type: 'lines',
+                        coordinateSystem: 'geo',
+                        zlevel: 3,
+                        polyline: true,
+                        symbol: ['none',
+                            'arrow'
+                        ],
+                        //线特效配置
+                        effect: {
+                            show: true,
+                            period: testa,
+                            trailLength: 0.1,
+                            // symbol: 'circle', //标记类型
+                            symbol: 'pin',
+                            loop: false,
+                            symbolSize: 15,
+                            delay: (testa + 1) * 1000
+                        },
+
+                        data: linkArr2
+                    },
+                ]
+
+
+            }
+            myChart.setOption(option)
+        }
+    )
+
+
+</script>
+<style type="text/css">
+    .mall_map {
+        width: 600px;
+        height: 600px;
+        background-color: #12192c;
+    }
+</style>

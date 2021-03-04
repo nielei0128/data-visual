@@ -7,4 +7,7 @@ import java.util.List;
 @Service
 public abstract class TrackService {
     public abstract List<Track> test();
+
+    public abstract List<Track> selectFirstFloor();
+    //public abstract int addData(Track track);
 }
