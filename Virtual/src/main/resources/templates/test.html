@@ -6,9 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
-    <script src="https://unpkg.com/@antv/data-set"></script>
+    <script src="https://unpkg.com/@antv/data-set@0.11.8/build/data-set.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.3.0-rc.2/echarts-en.min.js"></script>
-    <script src="test.js"></script>
     <title>自定义地图底图</title>
 </head>
 
@@ -18,20 +17,16 @@
 
 </html>
 <script type="text/javascript">
+
     $(function()
     {
         var option
-        $.getJSON('http://testcdn.zhimatech.com/map.json', function (value) {
-                //console.log(value);
-                var ds = new DataSet();
+        var myChart
 
-                var worldMap = ds.createView().source(value, {
-                    type: 'GeoJSON'
-                })
-                echarts.dispose(document.getElementById("mall_map"));
+        $.getJSON('http://testcdn.zhimatech.com/map.json', function (value) {
+                console.log(value)
                 myChart = echarts.init(document.getElementById("mall_map"));
                 echarts.registerMap('mallMap', value);
-
                 option = {
                     title: {
                         show: false
@@ -106,61 +101,58 @@
 
                 }
                 myChart.setOption(option)
-            }
-        )
+
+
     });
     $.ajax({
-        method:'POST',
+        method:"get",
+        dataType:"json",
         data:{},
-        url:"1F",
-        success:function(result){
-            console.info(result);
-            if(result){
-                var jsonObj=$.parseJSON(result);
-                var ds = new DataSet();
-                let shop_center_point_arr = {}
-                var worldMap = ds.transform({
-                    type: 'map',
-                    callback: function callback(row) {
-                        let t_key = row.name
-                        let obj = {};
-                        shop_center_point_arr[t_key] = [row.centroidX, row.centroidY]
-                        return row;
-                    }
-                })
-                var testdata=[];
-                for (i in jsonObj){
-                    testdata.push(shop_center_point_arr[jsonObj[i].adress])
-                }
-
-                mapchart.setOption({
-                    series: [
-                        {
-                            name: "customer1",
-                            type: 'lines',
-                            coordinateSystem: 'geo',
-                            zlevel: 3,
-                            polyline: true,
-
-                            symbol: ['none',
-                                'arrow'
-                            ],
-                            //线特效配置
-                            effect: {
-                                show: true,
-                                period: testa,
-                                trailLength: 0.1,
-                                // symbol: 'circle', //标记类型
-                                symbol: 'pin',
-                                loop: false,
-                                symbolSize: 15
-                            },
-                            data: testdata
-                        }
-                    ]
-                })
+        url:"/1F",
+        success:function(result) {
+            if (result) {
+                console.info(result);
             }
+            var testdata = [];
+            var tempArr = [];
+            for (var i = 0; i < result.length; i++) {
+                tempArr.push(Number(result[i].x_id));
+                tempArr.push(Number(result[i].y_id));
+                testdata.push(tempArr);
+                tempArr = [];
+            }
+            console.log(testdata)
+
+            option={
+                series: [
+                    {
+                        name: "customer1",
+                        type: 'lines',
+                        coordinateSystem: 'geo',
+                        zlevel: 3,
+                        polyline: true,
+
+                        symbol: ['none',
+                            'arrow'
+                        ],
+                        //线特效配置
+                        effect: {
+                            show: true,
+                            period: 3,
+                            trailLength: 0.1,
+                            // symbol: 'circle', //标记类型
+                            symbol: 'pin',
+                            loop: false,
+                            symbolSize: 15
+                        },
+                        data:[{coords:testdata}]
+                    }
+                ]
+            }
+            myChart.setOption(option);
+
         }
+        })
     })
 </script>
 <style type="text/css">

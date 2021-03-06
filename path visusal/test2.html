@@ -1,30 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.2.1/echarts-en.js"></script>
-    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
-    <!-- 引入js -->
-    <script src="../path visusal/echarts3-mapFile-master/map/china.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+    <!-- 引入在线资源 -->
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.data-set-0.8.9/dist/data-set.min.js"></script>
+    <script src="./echarts.js"></script>
+    <title>自定义地图底图</title>
 </head>
+
 <body>
-    <div id="map" style="width:500px;height:300px;background: rgba(12,134,211,0.2)"></div>
+    <div id="mall_map" class="mall_map"></div>
 </body>
+
 </html>
-<script>
-    var map = echarts.init(document.getElementById('map'));
-        map.setOption(
-            {
-                series: [
-                    {
-                        name:'china',
-                        type:'map',
-                        
+<script type="text/javascript">
+    var testa=[]
+    var temp=[]
+    var arr=["-121.969526","37.369611","-121.965870","37.372914","-121.967655","37.372387"]
+    for(var i=0;i<arr.length;i+=2){
+        console.log(arr[i])
+        temp.push(Number(arr[i]))
+        temp.push(Number(arr[i+1]))
+        testa.push(temp)
+        temp=[]
+    }
+    console.log(testa)
+    var mychart;
+    var option;
+    option = {
+            title: {
+                show: false
+            },
+
+            tooltip: {
+                trigger: 'item',
+
+            },
+            geo: {
+                map: 'mallMap',
+                roam: true,
+                zlevel: -1,
+                label: {
+                    normal: {
+                        show: true,
+                        color: '#ffffff',
+                    },
+                    emphasis: {
+                        color: '#ffffff',
                     }
-                ]
+                },
+                itemStyle: {
+                    normal: {
+                        shadowColor: 'rgba(1, 125, 255, 0.5)',
+                        shadowBlur: 1,
+                        areaColor: '#092449',
+                        color: '#017DFF',
+                        borderColor: '#017DFF',
+                        borderWidth: 2
+                    },
+                    emphasis: {
+                        shadowColor: 'rgba(1, 125, 255, 0.5)',
+                        shadowBlur: 1,
+                        areaColor: '#092449',
+                        color: '#017DFF',
+                        borderColor: '#017DFF',
+                        borderWidth: 2
+                    },
+                    textFixed: {
+                        Alaska: [20, -20]
+                    },
+                },
+                regions: []
+            },
+            series: [
+                {
+                    name: "customer1",
+                    type: 'lines',
+                    coordinateSystem: 'geo',
+                    zlevel: 3,
+                    polyline: true,
+
+                    symbol: ['none',
+                        'arrow'
+                    ],
+                    //线特效配置
+                    effect: {
+                        show: true,
+                        period: 3,
+                        trailLength: 0.1,
+                        // symbol: 'circle', //标记类型
+                        symbol: 'pin',
+                        loop: false,
+                        symbolSize: 15
+                    },
+                    data: [{coords:testa}]
+                }
+              
+            ]
+
+
+        }
+   
+    $.getJSON('http://testcdn.zhimatech.com/map.json', function (value) {
+        console.log(value);
+        
+        var ds = new DataSet();
+        //var result=[{"userID":"007","time":"2021-02-01T14:58:17.000+00:00","adress":"屈臣氏","state":"1","floor":"1","x_id":null,"y_id":null,"id":1},{"userID":"007","time":"2021-02-01T14:59:13.000+00:00","adress":"汉堡王","state":"1","floor":"1","x_id":null,"y_id":null,"id":2},{"userID":"007","time":"2021-02-01T15:00:02.000+00:00","adress":"星巴克","state":"1","floor":"1","x_id":null,"y_id":null,"id":3},{"userID":"007","time":"2021-02-01T15:00:28.000+00:00","adress":"万达影城","state":"1","floor":"1","x_id":null,"y_id":null,"id":4}];
+        var worldMap = ds.createView().source(value, {
+            type: 'GeoJSON'
+        })/*.transform({
+            type: 'map',
+            callback: function callback(row) {
+                let t_key = row.name
+                let obj = {};
+                shop_center_point_arr[t_key] = [row.centroidX, row.centroidY]
+                return row;
             }
-        );
+        })
+        var testdata=[];
+        for (i in result){
+                    console.log(result[i].adress)
+                    testdata.push(shop_center_point_arr[result[i].adress])
+                }*/
+        //echarts.dispose(document.getElementById("mall_map"));
+        echarts.registerMap('mallMap', value);
+        myChart = echarts.init(document.getElementById("mall_map"));
+        
+     
+   
+       
+        myChart.setOption(option)
+    }
+    )
+    
+
 </script>
+<style type="text/css">
+    .mall_map {
+        width: 1200px;
+        height: 800px;
+        background-color: #12192c;
+    }
+</style>
